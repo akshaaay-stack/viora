@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 80" fill="none">
+  <defs>
+    <linearGradient id="vLogoDrop" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#991B1B" />
+      <stop offset="100%" stop-color="#DC2626" />
+    </linearGradient>
+  </defs>
+  <g transform="translate(10, 10)">
+    <path d="M30 6 C30 6 12 25 12 39 C12 48.94 20.06 57 30 57 C39.94 57 48 48.94 48 39 C48 25 30 6 30 6 Z" fill="url(#vLogoDrop)"/>
+    <path d="M21 38 L25 38 L28 31 L32 44 L35 38 L39 38" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <text x="76" y="47" font-family="Plus Jakarta Sans, system-ui, -apple-system, sans-serif" font-size="34" font-weight="900" fill="#111827" letter-spacing="-0.5">VIORA</text>
+  <rect x="210" y="24" width="64" height="20" rx="6" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="1"/>
+  <text x="242" y="38" font-family="Plus Jakarta Sans, system-ui, sans-serif" font-size="10" font-weight="800" fill="#991B1B" text-anchor="middle" letter-spacing="1">KERALA</text>
+  <text x="78" y="64" font-family="Plus Jakarta Sans, system-ui, sans-serif" font-size="11" font-weight="600" fill="#64748B">District Blood Donor Matching</text>
+</svg>

@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>VIORA — District Blood Donor Matching Platform (Kerala)</title>
+  <meta name="description" content="The right donor, at the right moment — not everyone, all at once. Challenge SC-12 District Blood Donor Matching for Kerala." />
+  
+  <!-- Theme Color & Favicon -->
+  <meta name="theme-color" content="#991B1B" />
+  <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg" />
+
+  <!-- Google Fonts: Plus Jakarta Sans, Outfit, JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            viora: {
+              page: '#FCFBF9',       // Warm Medical Ivory
+              surface: '#FFFFFF',    // Clean Card White
+              border: '#E2E8F0',     // Soft Medical Border
+              primary: '#991B1B',    // Deep Cherry Red
+              primaryHover: '#7F1D1D',
+              primarySoft: '#FEF2F2',
+              primaryBorder: '#FCA5A5',
+              navy: '#0F172A',       // Deep Clinical Navy
+              slate: '#64748B',      // Secondary Text
+              textMain: '#111827',   // Primary Dark Text
+              success: '#059669',    // Medical Emerald
+              successSoft: '#ECFDF5',
+              warning: '#D97706',    // Amber Warning
+              warningSoft: '#FFFBEB'
+            }
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', '-apple-system', 'sans-serif'],
+            display: ['Outfit', '"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace']
+          },
+          boxShadow: {
+            'card': '0 2px 8px -2px rgba(15, 23, 42, 0.05), 0 4px 16px -4px rgba(15, 23, 42, 0.03)',
+            'card-hover': '0 10px 25px -5px rgba(153, 27, 27, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.03)',
+            'modal': '0 25px 50px -12px rgba(15, 23, 42, 0.25)'
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Lucide Icons & Supabase JS v2 -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #FCFBF9;
+      color: #111827;
+    }
+    
+    .font-display {
+      font-family: 'Outfit', sans-serif;
+    }
+
+    .viora-card {
+      background-color: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 16px;
+      box-shadow: 0 2px 8px -2px rgba(15, 23, 42, 0.05);
+      transition: all 0.2s ease;
+    }
+
+    .viora-card:hover {
+      border-color: #CBD5E1;
+    }
+
+    /* Switch toggle smooth animation */
+    .switch-toggle-bg {
+      transition: background-color 0.2s ease;
+    }
+    .switch-toggle-knob {
+      transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #F8FAFC;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #CBD5E1;
+      border-radius: 4px;
+    }
+
+    .btn-touch:active {
+      transform: scale(0.98);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased bg-[#FCFBF9] text-[#111827] selection:bg-red-100 selection:text-red-900">
+
+  <!-- ========================================================================= -->
+  <!-- 1. MAIN NAVIGATION HEADER                                                 -->
+  <!-- ========================================================================= -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16 items-center">
+        
+        <!-- Brand Logo & Identity -->
+        <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('request')" role="button" aria-label="Go to Viora Home">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-red-700 to-red-900 flex items-center justify-center text-white shadow-xs border border-red-800 hover:scale-105 transition-transform shrink-0">
+            <svg class="w-6 h-6 text-white" viewBox="0 0 100 100" fill="none">
+              <path d="M50 14 C50 14 24 43 24 64 C24 78.36 35.64 90 50 90 C64.36 90 76 78.36 76 64 C76 43 50 14 50 14 Z" fill="#EF4444" />
+              <path d="M36 62 L43 62 L47 51 L53 72 L57 62 L64 62" stroke="#FFFFFF" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div>
+            <div class="flex items-center space-x-2">
+              <span class="text-2xl font-extrabold tracking-tight text-slate-900 font-display">VIORA</span>
+              <span class="text-[10px] font-extrabold uppercase tracking-wider bg-red-50 text-red-800 border border-red-200 px-1.5 py-0.5 rounded">KERALA</span>
+            </div>
+            <p class="text-[11px] text-slate-500 font-medium -mt-1">District Blood Donor Matching</p>
+          </div>
+        </div>
+
+        <!-- Center Navigation Tabs -->
+        <nav class="hidden md:flex space-x-1 lg:space-x-2" id="mainDesktopNav" role="tablist" aria-label="Main Navigation">
+          <button onclick="switchTab('request')" id="nav-request" role="tab" aria-selected="true" class="nav-tab px-3.5 py-2 text-sm font-bold rounded-lg text-red-800 bg-red-50 border border-red-200 flex items-center space-x-2 transition cursor-pointer shadow-xs">
+            <i data-lucide="heart-handshake" class="w-4 h-4 text-red-700"></i>
+            <span>Request Blood</span>
+          </button>
+          
+          <button onclick="switchTab('donor')" id="nav-donor" role="tab" aria-selected="false" class="nav-tab px-3.5 py-2 text-sm font-semibold rounded-lg text-slate-700 hover:text-red-800 hover:bg-slate-50 flex items-center space-x-2 transition cursor-pointer">
+            <i data-lucide="user-check" class="w-4 h-4 text-emerald-600"></i>
+            <span>Donor Portal</span>
+          </button>
+
+          <button onclick="switchTab('tracker')" id="nav-tracker" role="tab" aria-selected="false" class="nav-tab px-3.5 py-2 text-sm font-semibold rounded-lg text-slate-700 hover:text-red-800 hover:bg-slate-50 flex items-center space-x-2 transition cursor-pointer">
+            <i data-lucide="activity" class="w-4 h-4 text-sky-600"></i>
+            <span>Live Matches</span>
+            <span id="activeMatchCountBadge" class="text-[10px] bg-red-100 text-red-800 px-1.5 py-0.2 rounded-full font-bold">1</span>
+          </button>
+
+          <button onclick="switchTab('hospitals')" id="nav-hospitals" role="tab" aria-selected="false" class="nav-tab px-3.5 py-2 text-sm font-semibold rounded-lg text-slate-700 hover:text-red-800 hover:bg-slate-50 flex items-center space-x-2 transition cursor-pointer">
+            <i data-lucide="building-2" class="w-4 h-4 text-slate-600"></i>
+            <span>Hospitals</span>
+          </button>
+        </nav>
+
+        <!-- Right Side: Emergency Helpline -->
+        <div class="flex items-center space-x-2 sm:space-x-3">
+          <!-- Emergency Helpline 104 -->
+          <a href="tel:104" aria-label="Call Kerala Emergency Medical Helpline 104" class="bg-red-800 hover:bg-red-900 text-white font-bold px-3.5 py-2 rounded-lg text-xs flex items-center space-x-1.5 transition shadow-xs shrink-0 btn-touch">
+            <i data-lucide="phone-call" class="w-3.5 h-3.5"></i>
+            <span class="hidden sm:inline">104 Helpline</span>
+            <span class="sm:hidden">104</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Sub-Navigation Bar -->
+    <div class="flex md:hidden border-t border-slate-200 overflow-x-auto bg-slate-50 px-2 py-1.5 space-x-1" id="mainMobileNav" role="tablist">
+      <button onclick="switchTab('request')" id="mob-nav-request" class="px-3 py-1.5 text-xs font-bold rounded text-red-800 bg-red-100 whitespace-nowrap cursor-pointer">🩸 Request</button>
+      <button onclick="switchTab('donor')" id="mob-nav-donor" class="px-3 py-1.5 text-xs font-semibold rounded text-slate-700 hover:bg-white whitespace-nowrap cursor-pointer">🛡️ Donor</button>
+      <button onclick="switchTab('tracker')" id="mob-nav-tracker" class="px-3 py-1.5 text-xs font-semibold rounded text-slate-700 hover:bg-white whitespace-nowrap cursor-pointer">📡 Matches</button>
+      <button onclick="switchTab('hospitals')" id="mob-nav-hospitals" class="px-3 py-1.5 text-xs font-semibold rounded text-slate-700 hover:bg-white whitespace-nowrap cursor-pointer">🏥 Hospitals</button>
+    </div>
+  </header>
+
+  <!-- ========================================================================= -->
+  <!-- 2. REUSABLE TOAST NOTIFICATION CONTAINER                                  -->
+  <!-- ========================================================================= -->
+  <div id="systemToast" class="fixed top-20 right-4 z-50 transform transition-all duration-300 translate-y-[-150%] opacity-0 max-w-md w-full pointer-events-none" role="alert" aria-live="assertive">
+    <div id="systemToastContent" class="pointer-events-auto bg-slate-900 text-white p-4 rounded-xl shadow-xl border border-slate-800 flex items-start space-x-3">
+      <div id="toastIcon" class="shrink-0 mt-0.5">
+        <i data-lucide="bell" class="w-5 h-5 text-red-400"></i>
+      </div>
+      <div class="flex-1 min-w-0">
+        <h4 id="toastTitle" class="text-sm font-bold text-white">Notification</h4>
+        <p id="toastMessage" class="text-xs text-slate-300 mt-0.5 leading-relaxed"></p>
+      </div>
+      <button onclick="dismissToast()" aria-label="Dismiss notification" class="text-slate-400 hover:text-white shrink-0 p-1 cursor-pointer">
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 3. AUTHENTICATION & ONBOARDING MODAL                                      -->
+  <!-- ========================================================================= -->
+  <div id="vioraAuthOverlay" role="dialog" aria-modal="true" aria-labelledby="authModalHeading" tabindex="-1" class="fixed inset-0 z-50 hidden bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-2xl max-w-md w-full border border-slate-200 shadow-modal overflow-hidden my-8">
+      
+      <div class="bg-gradient-to-r from-red-800 to-red-900 text-white px-6 py-5 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-xl bg-white/15 border border-white/20 flex items-center justify-center text-white">
+            <svg class="w-6 h-6 text-white" viewBox="0 0 100 100" fill="none">
+              <path d="M50 14 C50 14 24 43 24 64 C24 78.36 35.64 90 50 90 C64.36 90 76 78.36 76 64 C76 43 50 14 50 14 Z" fill="#FFFFFF" />
+              <path d="M36 62 L43 62 L47 51 L53 72 L57 62 L64 62" stroke="#991B1B" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div>
+            <div class="flex items-center space-x-1.5">
+              <span id="authModalHeading" class="font-extrabold text-xl font-display">VIORA</span>
+              <span class="text-[10px] font-extrabold bg-white/20 px-2 py-0.5 rounded">AUTHENTICATION</span>
+            </div>
+            <p class="text-xs text-white/80">District Blood Donor Matching Platform</p>
+          </div>
+        </div>
+        <button onclick="hideAuthModal()" class="text-white/70 hover:text-white p-1 rounded-lg cursor-pointer">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="p-6">
+        
+        <!-- STEP 1: PHONE NUMBER INPUT -->
+        <div id="authStepPhone" class="space-y-4">
+          <div>
+            <h3 class="text-lg font-bold text-slate-900">Sign in to Viora</h3>
+            <p class="text-xs text-slate-500 mt-0.5">Enter your mobile number to receive a 6-digit verification code.</p>
+          </div>
+
+          <div class="space-y-1.5">
+            <label for="authPhoneNumberInput" class="text-xs font-bold text-slate-700">Mobile Number (India)</label>
+            <div class="flex rounded-xl border border-slate-300 focus-within:border-red-800 focus-within:ring-2 focus-within:ring-red-800/20 overflow-hidden bg-white">
+              <span class="px-3.5 py-3 bg-slate-50 border-r border-slate-300 text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                <span>🇮🇳</span>
+                <span>+91</span>
+              </span>
+              <input type="tel" id="authPhoneNumberInput" name="authPhoneNumber" pattern="[6-9][0-9]{9}" maxlength="10" required inputmode="numeric" placeholder="98470 12345" class="flex-1 px-3.5 py-3 text-sm font-semibold tracking-wider text-slate-900 bg-transparent focus:outline-none" value="9847012345" />
+            </div>
+          </div>
+
+          <div id="authPhoneError" class="hidden p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 flex items-start gap-2" role="alert">
+            <i data-lucide="alert-circle" class="w-4 h-4 text-red-600 shrink-0 mt-0.5"></i>
+            <span id="authPhoneErrorText">Invalid phone number.</span>
+          </div>
+
+          <button id="authSendOtpButton" onclick="handleSendOtpSubmit()" class="w-full py-3.5 bg-red-800 hover:bg-red-900 text-white font-bold rounded-xl text-sm shadow-md transition flex items-center justify-center gap-2 cursor-pointer btn-touch">
+            <span id="authSendOtpButtonText">Send OTP</span>
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <!-- STEP 2: OTP VERIFICATION -->
+        <div id="authStepOtp" class="hidden space-y-4">
+          <div>
+            <h3 class="text-lg font-bold text-slate-900">Verify OTP</h3>
+            <p class="text-xs text-slate-500 mt-0.5">
+              Enter code sent to <strong id="otpTargetPhoneDisplay" class="font-mono text-slate-800">+91 98470 12345</strong>
+            </p>
+          </div>
+
+          <div class="space-y-2">
+            <label class="text-xs font-bold text-slate-700">6-Digit Verification Code</label>
+            <div class="flex justify-between gap-2" role="group" aria-label="6-digit OTP verification code">
+              <input type="text" id="otpDigit0" maxlength="1" pattern="[0-9]" inputmode="numeric" class="otp-digit-input w-11 h-12 text-center text-lg font-bold font-mono border border-slate-300 bg-white text-slate-900 rounded-xl focus:border-red-800 focus:ring-2 focus:ring-red-800/20 focus:outline-none" />
+              <input type="text" id="otpDigit1" maxlength="1" pattern="[0-9]" inputmode="numeric" class="otp-digit-input w-11 h-12 text-center text-lg font-bold font-mono border border-slate-300 bg-white text-slate-900 rounded-xl focus:border-red-800 focus:ring-2 focus:ring-red-800/20 focus:outline-none" />
+              <input type="text" id="otpDigit2" maxlength="1" pattern="[0-9]" inputmode="numeric" class="otp-digit-input w-11 h-12 text-center text-lg font-bold font-mono border border-slate-300 bg-white text-slate-900 rounded-xl focus:border-red-800 focus:ring-2 focus:ring-red-800/20 focus:outline-none" />
+              <input type="text" id="otpDigit3" maxlength="1" pattern="[0-9]" inputmode="numeric" class="otp-digit-input w-11 h-12 text-center text-lg font-bold font-mono border border-slate-300 bg-white text-slate-900 rounded-xl focus:border-red-800 focus:ring-2 focus:ring-red-800/20 focus:outline-none" />
+              <input type="text" id="otpDigit4" maxlength="1" pattern="[0-9]" inputmode="numeric" class="otp-digit-input w-11 h-12 text-center text-lg font-bold font-mono border border-slate-300 bg-white text-slate-900 rounded-xl focus:border-red-800 focus:ring-2 focus:ring-red-800/20 focus:outline-none" />
+              <input type="text" id="otpDigit5" maxlength="1" pattern="[0-9]" inputmode="numeric" class="otp-digit-input w-11 h-12 text-center text-lg font-bold font-mono border border-slate-300 bg-white text-slate-900 rounded-xl focus:border-red-800 focus:ring-2 focus:ring-red-800/20 focus:outline-none" />
+            </div>
+          </div>
+
+          <div id="authOtpError" class="hidden p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 flex items-start gap-2" role="alert">
+            <i data-lucide="alert-circle" class="w-4 h-4 text-red-600 shrink-0 mt-0.5"></i>
+            <span id="authOtpErrorText">Incorrect verification code.</span>
+          </div>
+
+          <div class="flex items-center justify-between text-xs pt-1">
+            <span id="otpCountdownTimer" class="text-slate-500 font-medium">Resend in 30s</span>
+            <button id="otpResendButton" onclick="handleResendOtp()" class="hidden text-red-800 font-bold hover:underline cursor-pointer">
+              Resend OTP
+            </button>
+          </div>
+
+          <div class="space-y-2 pt-2">
+            <button id="authVerifyOtpButton" onclick="handleVerifyOtpSubmit()" class="w-full py-3.5 bg-red-800 hover:bg-red-900 text-white font-bold rounded-xl text-sm shadow-md transition flex items-center justify-center gap-2 cursor-pointer btn-touch">
+              <span>Verify OTP</span>
+              <i data-lucide="check" class="w-4 h-4"></i>
+            </button>
+            <button type="button" onclick="backToPhoneStep()" class="w-full py-2 text-xs font-semibold text-slate-500 hover:text-slate-800 transition cursor-pointer">
+              &larr; Change Phone Number
+            </button>
+          </div>
+        </div>
+
+        <!-- STEP 3A: NEW USER REGISTRATION & PIN CREATION -->
+        <div id="authStepNewUser" class="hidden space-y-3.5">
+          <div>
+            <h3 class="text-lg font-bold text-slate-900">Create your Viora Profile</h3>
+            <p class="text-xs text-slate-500 mt-0.5">Register as a donor & set your 6-digit access PIN.</p>
+          </div>
+
+          <div class="space-y-1">
+            <label for="newUserNameInput" class="text-xs font-bold text-slate-700">Full Name</label>
+            <input type="text" id="newUserNameInput" required placeholder="e.g. Meera S." class="w-full px-3.5 py-2 text-sm text-slate-900 bg-white border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-800" value="Meera S." />
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <div class="space-y-1">
+              <label for="newUserBloodGroup" class="text-xs font-bold text-slate-700">Blood Group</label>
+              <select id="newUserBloodGroup" class="w-full px-3 py-2 text-xs font-bold border border-slate-300 rounded-xl bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-red-800">
+                <option value="O-" selected>O- (Universal)</option>
+                <option value="O+">O+</option>
+                <option value="A-">A-</option>
+                <option value="A+">A+</option>
+                <option value="B-">B-</option>
+                <option value="B+">B+</option>
+                <option value="AB-">AB-</option>
+                <option value="AB+">AB+</option>
+              </select>
+            </div>
+
+            <div class="space-y-1">
+              <label for="newUserDistrict" class="text-xs font-bold text-slate-700">District (Kerala)</label>
+              <select id="newUserDistrict" onchange="updateNewUserLocalityDropdown()" class="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-red-800 font-medium">
+                <option value="Ernakulam" selected>Ernakulam</option>
+                <option value="Thiruvananthapuram">Thiruvananthapuram</option>
+                <option value="Kozhikode">Kozhikode</option>
+                <option value="Thrissur">Thrissur</option>
+                <option value="Kottayam">Kottayam</option>
+                <option value="Alappuzha">Alappuzha</option>
+                <option value="Kollam">Kollam</option>
+                <option value="Palakkad">Palakkad</option>
+                <option value="Malappuram">Malappuram</option>
+                <option value="Kannur">Kannur</option>
+                <option value="Idukki">Idukki</option>
+                <option value="Pathanamthitta">Pathanamthitta</option>
+                <option value="Wayanad">Wayanad</option>
+                <option value="Kasaragod">Kasaragod</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="space-y-1">
+            <label for="newUserLocality" class="text-xs font-bold text-slate-700">Locality / Area</label>
+            <select id="newUserLocality" class="w-full px-3.5 py-2 text-xs border border-slate-300 rounded-xl bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-red-800 font-medium">
+              <option value="Kakkanad" selected>Kakkanad</option>
+              <option value="Edappally">Edappally</option>
+              <option value="Aluva">Aluva</option>
+              <option value="Kaloor">Kaloor</option>
+            </select>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 pt-1">
+            <div class="space-y-1">
+              <label for="newUserPinInput" class="text-xs font-bold text-slate-700">Create 6-Digit PIN</label>
+              <div class="relative">
+                <input type="password" id="newUserPinInput" pattern="[0-9]{6}" inputmode="numeric" maxlength="6" required placeholder="••••••" class="w-full px-3 py-2 text-sm font-mono tracking-widest text-slate-900 bg-white border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-800" />
+                <button type="button" onclick="togglePinVisibility('newUserPinInput')" class="absolute right-2.5 top-2 text-slate-400 hover:text-slate-700 cursor-pointer text-xs">
+                  <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="space-y-1">
+              <label for="newUserConfirmPinInput" class="text-xs font-bold text-slate-700">Confirm PIN</label>
+              <div class="relative">
+                <input type="password" id="newUserConfirmPinInput" pattern="[0-9]{6}" inputmode="numeric" maxlength="6" required placeholder="••••••" class="w-full px-3 py-2 text-sm font-mono tracking-widest text-slate-900 bg-white border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-800" />
+                <button type="button" onclick="togglePinVisibility('newUserConfirmPinInput')" class="absolute right-2.5 top-2 text-slate-400 hover:text-slate-700 cursor-pointer text-xs">
+                  <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div id="authNewUserError" class="hidden p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 flex items-start gap-2" role="alert">
+            <i data-lucide="alert-circle" class="w-4 h-4 text-red-600 shrink-0 mt-0.5"></i>
+            <span id="authNewUserErrorText">Please fill in all details.</span>
+          </div>
+
+          <button id="authSaveNewUserButton" onclick="handleSaveNewUserSubmit()" class="w-full py-3.5 bg-red-800 hover:bg-red-900 text-white font-bold rounded-xl text-sm shadow-md transition flex items-center justify-center gap-2 cursor-pointer btn-touch">
+            <span>Save Profile & Enter Viora</span>
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <!-- STEP 3B: RETURNING USER → 6-DIGIT PIN AUTH -->
+        <div id="authStepReturningUser" class="hidden space-y-4">
+          <div>
+            <h3 class="text-lg font-bold text-slate-900">Welcome Back</h3>
+            <p class="text-xs text-slate-500 mt-0.5">
+              Account recognized for <strong id="returningUserNameDisplay" class="text-slate-800">Meera S.</strong>. Enter your 6-digit access PIN.
+            </p>
+          </div>
+
+          <div class="space-y-1.5">
+            <label for="returningUserPinInput" class="text-xs font-bold text-slate-700">Enter 6-Digit Access PIN</label>
+            <div class="relative">
+              <input type="password" id="returningUserPinInput" pattern="[0-9]{6}" inputmode="numeric" maxlength="6" required placeholder="••••••" class="w-full px-4 py-3 text-base font-mono tracking-widest text-slate-900 bg-white border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-800" />
+              <button type="button" onclick="togglePinVisibility('returningUserPinInput')" class="absolute right-3.5 top-3.5 text-slate-400 hover:text-slate-700 cursor-pointer">
+                <i data-lucide="eye" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+
+          <div id="authReturningPinError" class="hidden p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 flex items-start gap-2" role="alert">
+            <i data-lucide="alert-circle" class="w-4 h-4 text-red-600 shrink-0 mt-0.5"></i>
+            <span id="authReturningPinErrorText">Incorrect Access PIN.</span>
+          </div>
+
+          <button id="authUnlockDashboardButton" onclick="handleReturningPinSubmit()" class="w-full py-3.5 bg-red-800 hover:bg-red-900 text-white font-bold rounded-xl text-sm shadow-md transition flex items-center justify-center gap-2 cursor-pointer btn-touch">
+            <span>Unlock Dashboard</span>
+            <i data-lucide="shield-check" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 4. MAIN APPLICATION CONTENT                                               -->
+  <!-- ========================================================================= -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
+
+    <!-- ==================== VIEW 1: REQUEST BLOOD & HERO ==================== -->
+    <section id="view-request" role="tabpanel" aria-labelledby="nav-request" class="space-y-12">
+      
+      <!-- HERO: THE RIGHT DONOR, AT THE RIGHT MOMENT -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center pt-2 pb-6 border-b border-slate-200/80">
+        
+        <!-- Hero Left -->
+        <div class="lg:col-span-7 space-y-6">
+
+          <div class="space-y-3">
+            <h1 class="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight font-display leading-tight">
+              The right donor, at the right moment — <span class="text-red-800 underline decoration-red-200 decoration-wavy">not everyone, all at once.</span>
+            </h1>
+            <p class="text-base sm:text-lg text-slate-600 leading-relaxed max-w-2xl">
+              District-aware blood donor matching that contacts eligible donors instead of broadcasting to everyone. Replaces chaotic WhatsApp blood-request broadcasts with targeted matching based on <strong>compatibility</strong>, <strong>90-day cooldown</strong>, and <strong>proximity</strong>.
+            </p>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-3 pt-1">
+            <a href="#requestBloodFormAnchor" class="px-6 py-3.5 rounded-xl bg-red-800 hover:bg-red-900 text-white font-bold text-sm shadow-md flex items-center space-x-2 transition btn-touch">
+              <i data-lucide="heart-pulse" class="w-4 h-4"></i>
+              <span>REQUEST BLOOD</span>
+            </a>
+            <button onclick="switchTab('donor')" class="px-6 py-3.5 rounded-xl bg-white hover:bg-slate-50 text-slate-800 font-bold text-sm border border-slate-300 shadow-xs flex items-center space-x-2 transition btn-touch">
+              <i data-lucide="user-check" class="w-4 h-4 text-emerald-600"></i>
+              <span>BECOME A DONOR</span>
+            </button>
+          </div>
+
+          <div class="flex items-center space-x-2 text-xs font-semibold text-slate-500 pt-1">
+            <i data-lucide="lock" class="w-4 h-4 text-amber-600"></i>
+            <span>🔒 Contact details stay private until donor acceptance.</span>
+          </div>
+
+          <!-- Live Platform Metrics Bar -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+            <div class="p-3.5 rounded-xl bg-white border border-slate-200 shadow-xs">
+              <div class="text-2xl font-black text-slate-900 font-display" id="heroTotalDonors">54</div>
+              <div class="text-[11px] font-bold text-slate-500 uppercase">Registered Donors</div>
+            </div>
+            <div class="p-3.5 rounded-xl bg-white border border-slate-200 shadow-xs">
+              <div class="text-2xl font-black text-emerald-700 font-display" id="heroEligibleDonors">48</div>
+              <div class="text-[11px] font-bold text-slate-500 uppercase">Currently Eligible</div>
+            </div>
+            <div class="p-3.5 rounded-xl bg-white border border-slate-200 shadow-xs">
+              <div class="text-2xl font-black text-red-800 font-display">14 / 14</div>
+              <div class="text-[11px] font-bold text-slate-500 uppercase">Kerala Districts</div>
+            </div>
+            <div class="p-3.5 rounded-xl bg-white border border-slate-200 shadow-xs">
+              <div class="text-2xl font-black text-sky-700 font-display">100%</div>
+              <div class="text-[11px] font-bold text-slate-500 uppercase">Privacy Protected</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hero Right: Visual Explanatory Matching Panel -->
+        <div class="lg:col-span-5">
+          <div class="viora-card p-6 border-red-100 bg-gradient-to-br from-white via-red-50/20 to-white shadow-card space-y-3">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+              <span class="text-xs font-black uppercase tracking-wider text-slate-800">HOW VIORA WORKS</span>
+            </div>
+
+            <div class="space-y-2.5">
+              
+              <!-- 1. Request -->
+              <div class="p-3 rounded-xl bg-white border border-slate-200 shadow-xs flex items-center justify-between">
+                <div class="flex items-center space-x-2.5">
+                  <span class="w-6 h-6 rounded-lg bg-red-100 text-red-800 font-black text-xs flex items-center justify-center">1</span>
+                  <div>
+                    <div class="text-xs font-bold text-slate-900">URGENT REQUEST</div>
+                    <div class="text-[11px] text-slate-500 font-mono">Ernakulam • 2 units</div>
+                  </div>
+                </div>
+                <span class="text-xs font-black px-2 py-0.5 bg-red-50 text-red-800 border border-red-200 rounded font-mono">O+</span>
+              </div>
+
+              <div class="flex justify-center text-red-700">
+                <i data-lucide="arrow-down" class="w-4 h-4"></i>
+              </div>
+
+              <!-- 2. Matching Engine -->
+              <div class="p-3 rounded-xl bg-white border border-red-200 shadow-xs space-y-1.5">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center space-x-2">
+                    <span class="w-6 h-6 rounded-lg bg-slate-900 text-white font-black text-xs flex items-center justify-center">2</span>
+                    <span class="text-xs font-bold text-slate-900">MATCHING ENGINE</span>
+                  </div>
+                  <span class="text-[10px] text-emerald-700 font-bold bg-emerald-50 px-1.5 py-0.5 rounded">FILTERED</span>
+                </div>
+                <div class="grid grid-cols-2 gap-1 text-[11px] text-slate-600 pt-0.5">
+                  <div>✓ Compatible group</div>
+                  <div>✓ &ge; 90-day interval</div>
+                  <div>✓ Available now</div>
+                  <div>✓ Nearby district</div>
+                </div>
+              </div>
+
+              <div class="flex justify-center text-red-700">
+                <i data-lucide="arrow-down" class="w-4 h-4"></i>
+              </div>
+
+              <!-- 3. Donor Notified & Accepted -->
+              <div class="p-3 rounded-xl bg-white border border-slate-200 shadow-xs flex items-center justify-between">
+                <div class="flex items-center space-x-2.5">
+                  <span class="w-6 h-6 rounded-lg bg-emerald-100 text-emerald-800 font-black text-xs flex items-center justify-center">3</span>
+                  <div>
+                    <div class="text-xs font-bold text-slate-900">DONOR NOTIFIED & ACCEPTED</div>
+                    <div class="text-[11px] text-slate-500">Targeted push to candidate</div>
+                  </div>
+                </div>
+                <i data-lucide="check-circle" class="w-4 h-4 text-emerald-600"></i>
+              </div>
+
+              <div class="flex justify-center text-red-700">
+                <i data-lucide="arrow-down" class="w-4 h-4"></i>
+              </div>
+
+              <!-- 4. Contact Shared -->
+              <div class="p-3 rounded-xl bg-emerald-50 border border-emerald-200 shadow-xs flex items-center justify-between">
+                <div class="flex items-center space-x-2.5">
+                  <span class="w-6 h-6 rounded-lg bg-emerald-700 text-white font-black text-xs flex items-center justify-center">4</span>
+                  <div>
+                    <div class="text-xs font-bold text-emerald-900">CONTACT SHARED</div>
+                    <div class="text-[11px] text-emerald-700">Privacy gate unlocks coordinates</div>
+                  </div>
+                </div>
+                <i data-lucide="unlock" class="w-4 h-4 text-emerald-700"></i>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+
+      <!-- SECTION 3: INTERACTIVE REQUEST BLOOD FORM & LIVE MATCHING SEQUENCE -->
+      <div id="requestBloodFormAnchor" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        
+        <!-- Left: Form -->
+        <div class="lg:col-span-7 space-y-6">
+          <div class="viora-card p-6 sm:p-8 space-y-6">
+            
+            <div class="flex items-center justify-between pb-4 border-b border-slate-200">
+              <div class="flex items-center space-x-3">
+                <div class="w-9 h-9 rounded-lg bg-red-100 text-red-800 flex items-center justify-center font-bold">
+                  <i data-lucide="plus-circle" class="w-5 h-5"></i>
+                </div>
+                <div>
+                  <h2 class="text-lg font-bold text-slate-900 font-display">Create Emergency Blood Request</h2>
+                  <p class="text-xs text-slate-500">Targeted dispatch across Kerala 14 districts</p>
+                </div>
+              </div>
+              <span class="text-xs font-bold px-2.5 py-1 bg-red-50 text-red-800 border border-red-200 rounded-lg">KERALA 24/7</span>
+            </div>
+
+            <!-- Form -->
+            <form id="emergencyBloodRequestForm" onsubmit="handleCreateEmergencyRequest(event)" class="space-y-6">
+              
+              <!-- Patient Info -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="space-y-1.5">
+                  <label for="reqPatientName" class="text-xs font-bold text-slate-700">Patient Name / Case ID *</label>
+                  <input type="text" id="reqPatientName" required placeholder="e.g. Sreekumar Menon (ICU Bed 4)" class="w-full px-3.5 py-2.5 text-sm font-medium border border-slate-300 rounded-xl bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-red-800" value="Sreekumar Menon (ICU Trauma)" />
+                </div>
+
+                <div class="space-y-1.5">
+                  <label for="reqContactPhone" class="text-xs font-bold text-slate-700">Requester / Doctor Phone *</label>
+                  <input type="tel" id="reqContactPhone" required placeholder="+91 98470 11223" class="w-full px-3.5 py-2.5 text-sm font-medium border border-slate-300 rounded-xl bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-red-800 font-mono" value="+91 98470 11223" />
+                </div>
+              </div>
+
+              <!-- Blood Group Selector Cards -->
+              <div class="space-y-2">
+                <label class="text-xs font-bold text-slate-700 flex justify-between">
+                  <span>Required Blood Group *</span>
+                  <span id="reqBloodGroupSummary" class="text-xs text-red-800 font-bold">Selected: O+ (Universal Receiver / Donor)</span>
+                </label>
+                <div class="grid grid-cols-4 sm:grid-cols-8 gap-2" id="bloodGroupGridContainer">
+                  <!-- Dynamically rendered via JS -->
+                </div>
+              </div>
+
+              <!-- Units & Urgency -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="space-y-1.5">
+                  <label for="reqUnitsCount" class="text-xs font-bold text-slate-700">Units Required (Pints) *</label>
+                  <div class="flex items-center border border-slate-300 rounded-xl overflow-hidden bg-white">
+                    <button type="button" onclick="adjustUnits(-1)" class="px-3.5 py-2.5 bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold border-r border-slate-300 cursor-pointer">-</button>
+                    <input type="number" id="reqUnitsCount" min="1" max="10" value="2" readonly class="flex-1 text-center text-sm font-bold text-slate-900 bg-transparent focus:outline-none" />
+                    <button type="button" onclick="adjustUnits(1)" class="px-3.5 py-2.5 bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold border-l border-slate-300 cursor-pointer">+</button>
+                  </div>
+                </div>
+
+                <div class="space-y-1.5">
+                  <label for="reqUrgencyLevel" class="text-xs font-bold text-slate-700">Urgency Classification *</label>
+                  <select id="reqUrgencyLevel" class="w-full px-3.5 py-2.5 text-xs font-bold border border-slate-300 rounded-xl bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-red-800">
+                    <option value="CRITICAL" selected>🚨 CRITICAL — Immediate (Within 1 hr)</option>
+                    <option value="EMERGENCY">⚠️ EMERGENCY — Urgent (Within 4 hrs)</option>
+                    <option value="STANDARD">🕒 STANDARD — Scheduled Surgery</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- District & Locality -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="space-y-1.5">
+                  <label for="reqDistrict" class="text-xs font-bold text-slate-700">Kerala District *</label>
+                  <select id="reqDistrict" onchange="handleDistrictChange()" class="w-full px-3.5 py-2.5 text-xs font-bold border border-slate-300 rounded-xl bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-red-800">
+                    <!-- Populated dynamically -->
+                  </select>
+                </div>
+
+                <div class="space-y-1.5">
+                  <label for="reqLocality" class="text-xs font-bold text-slate-700">Locality / Area *</label>
+                  <select id="reqLocality" class="w-full px-3.5 py-2.5 text-xs font-medium border border-slate-300 rounded-xl bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-red-800">
+                    <!-- Populated dynamically -->
+                  </select>
+                </div>
+              </div>
+
+              <!-- Hospital -->
+              <div class="space-y-1.5">
+                <label for="reqHospitalName" class="text-xs font-bold text-slate-700">Hospital / Medical Center *</label>
+                <select id="reqHospitalName" class="w-full px-3.5 py-2.5 text-xs font-medium border border-slate-300 rounded-xl bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-red-800">
+                  <!-- Populated dynamically -->
+                </select>
+              </div>
+
+              <!-- Submit CTA -->
+              <div class="pt-2">
+                <button type="submit" id="btnSubmitRequest" class="w-full py-4 bg-red-800 hover:bg-red-900 text-white font-bold rounded-xl text-sm shadow-md transition flex items-center justify-center space-x-2 cursor-pointer btn-touch">
+                  <i data-lucide="search" class="w-4 h-4"></i>
+                  <span id="btnSubmitRequestText">Find & Notify Eligible Donors</span>
+                </button>
+              </div>
+
+            </form>
+
+          </div>
+        </div>
+
+        <!-- Right: Live Real-time Matching Sequence Visualizer -->
+        <div class="lg:col-span-5 space-y-6">
+          
+          <div class="viora-card p-6 space-y-4 border-red-100">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-200">
+              <div class="flex items-center space-x-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse"></span>
+                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-900">MATCHING ENGINE LIVE SEQUENCE</h3>
+              </div>
+              <span class="text-[10px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded font-mono">AUTOMATED</span>
+            </div>
+
+            <!-- Sequence Steps -->
+            <div class="space-y-2.5" id="matchingSequenceContainer">
+              <div class="flex items-center justify-between p-2.5 rounded-lg bg-slate-50 border border-slate-200 text-xs">
+                <span class="font-medium text-slate-700">REQUEST CREATED</span>
+                <span class="font-bold text-emerald-700 font-mono">✓</span>
+              </div>
+              <div class="flex items-center justify-between p-2.5 rounded-lg bg-slate-50 border border-slate-200 text-xs">
+                <span class="font-medium text-slate-700">CHECKING BLOOD COMPATIBILITY</span>
+                <span class="font-bold text-emerald-700 font-mono">✓</span>
+              </div>
+              <div class="flex items-center justify-between p-2.5 rounded-lg bg-slate-50 border border-slate-200 text-xs">
+                <span class="font-medium text-slate-700">CHECKING 90-DAY ELIGIBILITY</span>
+                <span class="font-bold text-emerald-700 font-mono">✓</span>
+              </div>
+              <div class="flex items-center justify-between p-2.5 rounded-lg bg-slate-50 border border-slate-200 text-xs">
+                <span class="font-medium text-slate-700">CHECKING AVAILABILITY</span>
+                <span class="font-bold text-emerald-700 font-mono">✓</span>
+              </div>
+              <div class="flex items-center justify-between p-2.5 rounded-lg bg-slate-50 border border-slate-200 text-xs">
+                <span class="font-medium text-slate-700">CHECKING DISTRICT PROXIMITY</span>
+                <span class="font-bold text-emerald-700 font-mono">✓</span>
+              </div>
+              <div class="flex items-center justify-between p-2.5 rounded-lg bg-slate-50 border border-slate-200 text-xs">
+                <span class="font-medium text-slate-700">RANKING CANDIDATES</span>
+                <span class="font-bold text-emerald-700 font-mono">✓</span>
+              </div>
+              <div class="flex items-center justify-between p-2.5 rounded-lg bg-emerald-50 border border-emerald-200 text-xs">
+                <span class="font-bold text-emerald-900">TARGETED DONORS NOTIFIED</span>
+                <span class="font-bold text-emerald-700 font-mono">✓</span>
+              </div>
+            </div>
+
+            <!-- Matched Count Banner -->
+            <div class="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-between text-xs">
+              <span class="font-bold text-emerald-900" id="matchingFoundCountText">3 eligible donors found in Kakkanad</span>
+              <button onclick="switchTab('tracker')" class="text-xs font-bold text-emerald-800 underline cursor-pointer">
+                View Matches &rarr;
+              </button>
+            </div>
+          </div>
+
+          <!-- 90-Day Medical Rule Visual Explanation Component -->
+          <div class="viora-card p-6 space-y-4">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-900 flex items-center gap-1.5">
+              <i data-lucide="clock" class="w-4 h-4 text-amber-600"></i>
+              <span>90-DAY DONATION ELIGIBILITY RULE</span>
+            </h3>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              <!-- Eligible Donor Card -->
+              <div class="p-3 rounded-xl bg-emerald-50/50 border border-emerald-200 space-y-1">
+                <div class="font-bold text-emerald-800 flex items-center gap-1">
+                  <span>🟢 Eligible to donate</span>
+                </div>
+                <div class="text-[11px] text-slate-600">Last donation: 12 June 2026</div>
+                <div class="text-[11px] text-slate-600">Days since donation: <strong>100 days</strong></div>
+                <div class="text-[11px] font-bold text-emerald-700">Status: Eligible Now (&ge; 90d)</div>
+              </div>
+
+              <!-- Ineligible Donor Card -->
+              <div class="p-3 rounded-xl bg-amber-50/50 border border-amber-200 space-y-1">
+                <div class="font-bold text-amber-800 flex items-center gap-1">
+                  <span>🟠 Not currently eligible</span>
+                </div>
+                <div class="text-[11px] text-slate-600">Last donation: 28 Aug 2026</div>
+                <div class="text-[11px] text-slate-600">Days remaining: <strong>68 days</strong></div>
+                <div class="text-[11px] font-bold text-amber-700">Excluded from active match</div>
+              </div>
+            </div>
+
+            <p class="text-[11px] text-slate-500 leading-snug">
+              VIORA protects donor health by automatically excluding any donor whose last donation was within 90 days.
+            </p>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ==================== VIEW 2: DONOR PORTAL ==================== -->
+    <section id="view-donor" role="tabpanel" aria-labelledby="nav-donor" class="hidden space-y-8">
+      
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        
+        <!-- Left: Donor Status & Availability Switch -->
+        <div class="lg:col-span-5 space-y-6">
+          
+          <div class="viora-card p-6 space-y-5">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-200">
+              <div class="flex items-center space-x-3">
+                <div class="w-12 h-12 rounded-xl bg-red-100 text-red-800 flex items-center justify-center font-black text-lg">
+                  <span id="donorAvatarText">MS</span>
+                </div>
+                <div>
+                  <h3 id="donorProfileName" class="text-base font-bold text-slate-900">Meera S.</h3>
+                  <p id="donorProfileDistrict" class="text-xs text-slate-500 font-medium">Kakkanad, Ernakulam</p>
+                </div>
+              </div>
+              <span id="donorProfileBloodGroup" class="text-sm font-black text-red-800 bg-red-50 border border-red-200 px-2.5 py-1 rounded-lg">O+</span>
+            </div>
+
+            <!-- Working Availability Switch (Updates Supabase) -->
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+              <div class="flex items-center justify-between">
+                <div>
+                  <span class="text-xs font-bold text-slate-800">DONOR AVAILABILITY</span>
+                  <div id="donorReadinessSubtext" class="text-xs text-emerald-600 font-medium">Available for matching</div>
+                </div>
+                
+                <button type="button" id="donorAvailToggleBtn" onclick="toggleDonorAvailability()" aria-label="Toggle availability" class="relative inline-flex h-7 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-emerald-500 switch-toggle-bg focus:outline-none hover:opacity-95 shadow-xs">
+                  <span id="donorAvailToggleKnob" class="pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-md ring-0 switch-toggle-knob translate-x-5"></span>
+                </button>
+              </div>
+              <p class="text-[11px] text-slate-500">When toggled OFF, you will not receive matching requests.</p>
+            </div>
+
+            <!-- 90-Day Medical Eligibility Breakdown -->
+            <div class="p-4 rounded-xl bg-white border border-slate-200 space-y-2">
+              <div class="flex items-center justify-between text-xs">
+                <span class="font-bold text-slate-700">DONATION ELIGIBILITY</span>
+                <span id="donorCooldownBadge" class="font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">🟢 Eligible to donate</span>
+              </div>
+              <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                <div id="donorCooldownProgress" class="bg-emerald-500 h-2 rounded-full w-full"></div>
+              </div>
+              <div class="flex justify-between text-[10px] text-slate-400 font-mono">
+                <span>100 days since last donation</span>
+                <span>Next eligible date: Now</span>
+              </div>
+            </div>
+
+            <!-- Donor Impact Section -->
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+              <span class="text-xs font-bold text-slate-800 uppercase tracking-wider">YOUR IMPACT</span>
+              <div class="grid grid-cols-3 gap-2 text-center pt-1">
+                <div class="p-2 bg-white rounded-lg border border-slate-200">
+                  <div class="text-lg font-black text-slate-900 font-display">4</div>
+                  <div class="text-[10px] text-slate-500">Responded</div>
+                </div>
+                <div class="p-2 bg-white rounded-lg border border-slate-200">
+                  <div class="text-lg font-black text-emerald-700 font-display">3</div>
+                  <div class="text-[10px] text-slate-500">Accepted</div>
+                </div>
+                <div class="p-2 bg-white rounded-lg border border-slate-200">
+                  <div class="text-lg font-black text-red-800 font-display">3</div>
+                  <div class="text-[10px] text-slate-500">Patients Helped</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Switch Demo Persona Dropdown -->
+            <div class="pt-1 border-t border-slate-200 space-y-1.5">
+              <label for="donorPersonaSelect" class="text-xs font-bold text-slate-600">Switch Persona for Reviewer Test:</label>
+              <select id="donorPersonaSelect" onchange="handlePersonaChange(this.value)" class="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-red-800 font-medium">
+                <!-- Injected via JS -->
+              </select>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- Right: Incoming Emergency Requests & Action Cards -->
+        <div class="lg:col-span-7 space-y-6">
+          
+          <div class="viora-card p-6 space-y-5">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-200">
+              <div class="flex items-center space-x-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse"></span>
+                <h3 class="text-sm font-bold text-slate-900 font-display">NEW EMERGENCY REQUESTS</h3>
+              </div>
+              <span id="donorPendingCountBadge" class="text-xs font-bold px-2 py-0.5 rounded bg-red-100 text-red-800 font-mono">1 ALERT</span>
+            </div>
+
+            <div id="donorIncomingAlertsContainer" class="space-y-4">
+              <!-- Dispatch Alert Card populated via JS -->
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ==================== VIEW 3: LIVE MATCHES & PRIVACY GATE ==================== -->
+    <section id="view-tracker" role="tabpanel" aria-labelledby="nav-tracker" class="hidden space-y-8">
+      
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        
+        <!-- Left: Active Request & 3-Wave Escalation -->
+        <div class="lg:col-span-7 space-y-6">
+          
+          <div class="viora-card p-6 space-y-6">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-200">
+              <div>
+                <h2 class="text-lg font-bold text-slate-900 font-display">Active Request & 3-Wave Escalation</h2>
+                <p class="text-xs text-slate-500">Kakkanad locality & Ernakulam district dispatch</p>
+              </div>
+              <span class="text-xs font-mono font-bold px-2.5 py-1 bg-red-100 text-red-800 rounded" id="liveWaveBadge">WAVE 1 (0–5 KM)</span>
+            </div>
+
+            <!-- Concentric Radius Visualizer -->
+            <div class="relative bg-slate-900 rounded-2xl p-6 text-white overflow-hidden shadow-card">
+              <div class="relative h-56 w-full flex items-center justify-center">
+                <div class="absolute w-52 h-52 rounded-full border border-slate-700/80"></div>
+                <div class="absolute w-36 h-36 rounded-full border border-red-500/40 bg-red-950/20"></div>
+                <div class="absolute w-20 h-20 rounded-full border border-red-500/60 bg-red-900/30 animate-pulse"></div>
+
+                <div class="relative z-30 flex flex-col items-center">
+                  <div class="w-9 h-9 rounded-full bg-red-600 text-white flex items-center justify-center shadow-lg border-2 border-white">
+                    <i data-lucide="cross" class="w-4 h-4"></i>
+                  </div>
+                  <span class="text-[9px] font-black tracking-tighter uppercase mt-1">ASTER MEDCITY</span>
+                </div>
+
+                <div class="absolute top-10 right-20 z-20 flex items-center space-x-1.5 bg-slate-800/90 border border-emerald-500 px-2 py-1 rounded-lg shadow-sm">
+                  <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                  <span class="text-xs font-bold text-white">Meera S. (O+, 2.4 km)</span>
+                </div>
+
+                <div class="absolute bottom-10 right-14 z-20 flex items-center space-x-1.5 bg-slate-800/90 border border-emerald-500 px-2 py-1 rounded-lg shadow-sm">
+                  <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                  <span class="text-xs font-bold text-white">Rahul V. (O+, 3.8 km)</span>
+                </div>
+              </div>
+
+              <div class="mt-3 text-center space-y-0.5">
+                <div class="text-xs font-bold text-white" id="radarTargetText">Wave 1: 2 Eligible Candidates Notified in Locality</div>
+                <div class="text-[11px] text-slate-400 font-mono">Waiting for donor response...</div>
+              </div>
+            </div>
+
+            <!-- Wave Timeline -->
+            <div class="space-y-2.5" id="waveTimelineContainer">
+              <!-- Rendered via JS -->
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- Right: "Why Matched?" Explanation & Privacy Gate Reveal -->
+        <div class="lg:col-span-5 space-y-6">
+          
+          <!-- Candidate Cards with "Why Matched?" Explanation -->
+          <div class="viora-card p-6 space-y-4">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-200">
+              <div>
+                <h3 class="text-sm font-bold text-slate-900">DONOR EVALUATION & MATCHES</h3>
+                <p class="text-xs text-slate-500">Explainable eligibility breakdown</p>
+              </div>
+              <span id="eligibilitySummaryBadge" class="text-xs font-bold bg-slate-100 text-slate-700 px-2.5 py-0.5 rounded">4 Evaluated</span>
+            </div>
+
+            <div class="space-y-3" id="eligibilityCandidatesList">
+              <!-- Injected via JS -->
+            </div>
+          </div>
+
+          <!-- Privacy Gate Box -->
+          <div class="viora-card p-6 space-y-4">
+            <h3 class="text-sm font-bold text-slate-900">PRIVACY GATE STATUS</h3>
+            <div id="liveMatchesTrackerList" class="space-y-4">
+              <!-- Injected via JS -->
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ==================== VIEW 4: HOSPITAL DIRECTORY ==================== -->
+    <section id="view-hospitals" role="tabpanel" aria-labelledby="nav-hospitals" class="hidden space-y-6">
+      
+      <div class="viora-card p-6 sm:p-8 space-y-6">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-4 border-b border-slate-200">
+          <div>
+            <h2 class="text-xl font-bold text-slate-900 font-display">Kerala Hospital & Blood Bank Directory</h2>
+            <p class="text-xs text-slate-500 mt-0.5">Verified 24/7 emergency centers across Kerala</p>
+          </div>
+
+          <!-- Search & Filter -->
+          <div class="flex flex-wrap items-center gap-2">
+            <div class="relative">
+              <input type="text" id="hospitalSearchInput" oninput="filterHospitalsList()" placeholder="🔍 Search hospital..." class="px-3 py-1.5 text-xs border border-slate-300 rounded-lg bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-red-800" />
+            </div>
+
+            <select id="hospitalDistrictFilter" onchange="filterHospitalsList()" class="px-3 py-1.5 border border-slate-300 rounded-lg text-xs bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-red-800 font-medium cursor-pointer">
+              <option value="ALL">All Kerala Districts</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="hospitalsGrid">
+          <!-- Populated via JS -->
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Load environment configuration and main application bundle -->
+  <script src="./env.js"></script>
+  <script src="./app.js"></script>
+
+</body>
+</html>
