@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <defs>
+    <linearGradient id="vioraDrop" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#991B1B" />
+      <stop offset="100%" stop-color="#DC2626" />
+    </linearGradient>
+    <filter id="vioraGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#991B1B" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+  <path d="M50 14 C50 14 24 43 24 64 C24 78.36 35.64 90 50 90 C64.36 90 76 78.36 76 64 C76 43 50 14 50 14 Z" fill="url(#vioraDrop)" filter="url(#vioraGlow)"/>
+  <path d="M36 62 L43 62 L47 51 L53 72 L57 62 L64 62" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M34 50 C32 55 32 62 35 68" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" opacity="0.4"/>
+</svg>

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <defs>
+    <linearGradient id="favDrop" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#991B1B" />
+      <stop offset="100%" stop-color="#DC2626" />
+    </linearGradient>
+  </defs>
+  <circle cx="50" cy="50" r="48" fill="#FEF2F2"/>
+  <path d="M50 16 C50 16 26 43 26 62 C26 75.25 36.75 84 50 84 C63.25 84 74 75.25 74 62 C74 43 50 16 50 16 Z" fill="url(#favDrop)"/>
+  <path d="M38 58 L44 58 L48 48 L53 68 L57 58 L63 58" stroke="#FFFFFF" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

@@ -1,0 +1,31 @@
+/* ==========================================================================
+   VIORA — Responsive Layout & Breakpoints
+   Mobile (320px/375px), Tablet (768px), Laptop (1024px), Desktop (1440px)
+   ========================================================================== */
+
+@media (max-width: 640px) {
+  /* Prevent horizontal overflow on small screens */
+  html, body {
+    overflow-x: hidden;
+  }
+  
+  /* Convert wide tables into readable cards on mobile */
+  .mobile-card-table thead {
+    display: none;
+  }
+  .mobile-card-table tr {
+    display: block;
+    margin-bottom: 0.75rem;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 1rem;
+    padding: 1rem;
+  }
+  .mobile-card-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.35rem 0;
+    border: none;
+  }
+}
