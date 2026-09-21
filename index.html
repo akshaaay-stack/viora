@@ -424,6 +424,41 @@
   </div>
 
   <!-- ========================================================================= -->
+  <!-- 3B. MATCH DETAIL MODAL (DEEP-LINKABLE #/match/<id>)                      -->
+  <!-- ========================================================================= -->
+  <div id="vioraMatchDetailOverlay" role="dialog" aria-modal="true" aria-labelledby="matchModalHeading" tabindex="-1" class="fixed inset-0 z-50 hidden bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-2xl max-w-xl w-full border border-slate-200 shadow-modal overflow-hidden my-8">
+      
+      <div class="bg-gradient-to-r from-red-800 to-red-900 text-white px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <div class="w-9 h-9 rounded-xl bg-white/15 border border-white/20 flex items-center justify-center text-white shrink-0">
+            <i data-lucide="shield-alert" class="w-5 h-5 text-white"></i>
+          </div>
+          <div>
+            <div class="flex items-center space-x-2">
+              <span id="matchModalHeading" class="font-extrabold text-base font-display">EMERGENCY MATCH DISPATCH</span>
+              <span id="matchModalUrgencyBadge" class="text-[10px] font-extrabold bg-white/20 px-2 py-0.5 rounded uppercase">CRITICAL</span>
+            </div>
+            <p id="matchModalSubtitle" class="text-xs text-white/80 font-mono">ID: Loading...</p>
+          </div>
+        </div>
+        <button onclick="closeMatchDetailModal()" aria-label="Close match details" class="text-white/70 hover:text-white p-1 rounded-lg cursor-pointer">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-5" id="matchDetailModalBody">
+        <!-- Injected dynamically via renderMatchDetailContent() -->
+        <div class="p-8 text-center text-slate-500">
+          <svg class="animate-spin h-6 w-6 text-red-800 mx-auto mb-2" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+          <div class="text-xs font-semibold">Loading verified match details from Supabase...</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
   <!-- 4. MAIN APPLICATION CONTENT                                               -->
   <!-- ========================================================================= -->
   <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
